@@ -1,27 +1,27 @@
-const express = require('express');
-const cors = require('cors');
+const express = require("express");
 const bodyParser = require('body-parser');
+const socket = require('socket.io');
+const port = 3000;
+
 const app = express();
-const SOCKET_IO = require('socket.io')();
 
 app.use(bodyParser.json());
 
-app.use(cors());
 
-app.options('*', cors());
+const server = app.listen(port, () => {
+  console.log('server listening to port 3000')
+});
 
-SOCKET_IO.on('connection', socket => {
+const io = socket.listen(server);
+
+io.sockets.on('connection', (socket) => {
   socket.on('CREATE_CONNECTION', (data) => {
-    SOCKET_IO.emit('CONNECTION_CREATED', {message:'Connection Created.'})
+    console.log(data);
+    io.emit('CONNECTION_CREATED', {message:'Connection Created.'})
   });
 
   socket.on('SEND_MESSAGE', (data) => {
-    SOCKET_IO.emit('RECEIVE_MESSAGE', data);
+    io.emit('RECEIVE_MESSAGE', data);
   });
 });
 
-SOCKET_IO.listen(2000);
-
-app.listen(5000, () => {
-  console.log(`Server Running On Port: 5000`)
-})
